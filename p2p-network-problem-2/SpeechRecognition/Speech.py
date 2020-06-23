@@ -3,11 +3,11 @@
 #         Martell Fuentes Ambar Desirée
 #         Mendoza Morales Aldo Daniel
 
+import os
 import speech_recognition as sr
 from Maquina import *
 
 maquinas = []
-main()
 
 def CargarMaquinas():
     maquinas.append( Maquina("Carla", "127.0.0.1", "8001") )
@@ -48,30 +48,31 @@ def main():
 
     CargarMaquinas()
     MostrarMaquinas()
-    
-    texto = ObtenerMensajeVoz()
-       if (texto != ""):
-          destinatario = ObtenerMaquina( texto )
-             print("Se enviara a la maquina de:\t" + destinatario + "\n")
-              break
-                print(texto)
-                input( "Intentalo de nuevo. Pulsa enter para continuar ..." )
-        else:
-            os.system( "clear" )
-            MostrarMaquinas()
     os.system( "clear" )
     MostrarMaquinas()
+     
+    while(True):
+     print("A quien le enviaras el mensaje?")
+     texto = ObtenerMensajeVoz()
+     if (texto != ""):
+         destinatario = ObtenerMaquina( texto )
+         if(destinatario != ""):
+          print("Se enviara a la maquina de:\t" + destinatario + "\n")
+	  
+         while(True):
+             print("Cual es tu mensaje?")
+             mensaje = ObtenerMensajeVoz()
+             if (mensaje != ""):
+               print("Tu mensaje es: \t" + mensaje + "\n")
+               break
+         else:
+            input( "Intentalo de nuevo. Pulsa enter para continuar ..." )
+            os.system( "clear" )
+            MostrarMaquinas()
 
-    mensaje = ObtenerMensajeVoz()
-	if (mesaje != ""):
-             print("Tu mensaje es:\t" + mensaje + "\n")
-              break
-                input( "Intentalo de nuevo. Pulsa enter para continuar ..." )
-        else:
-            os.system( "clear" )
-            MostrarMaquinas()
-    os.system( "clear" )
-    MostrarMaquinas()
+    else:
+        input( "Intentalo de nuevo. Pulsa enter para continuar ..." )
+        os.system( "clear" )
+        print("Repite tu mensaje")
     
-    
-   
+main()

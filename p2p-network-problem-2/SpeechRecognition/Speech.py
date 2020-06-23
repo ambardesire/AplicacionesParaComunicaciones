@@ -8,6 +8,9 @@ import speech_recognition as sr
 from Maquina import *
 
 maquinas = []
+NOMBRE = 0
+IP = 1
+PUERTO = 2
 
 def CargarMaquinas():
     maquinas.append( Maquina("Carla", "127.0.0.1", "8001") )
@@ -18,16 +21,19 @@ def MostrarMaquinas():
     for maquina in maquinas:
         maquina.DescripcionMaquina()
 
-def ObtenerMensajeVoz():
+def ObtenerMensajeVoz( mensaje ):
     r = sr.Recognizer()
     with sr.Microphone() as source:
         r.adjust_for_ambient_noise(source)
+        
         os.system( "clear" )
         MostrarMaquinas()
+        
+        print( mensaje )
         print( "Escuchando ")
         audio = r.listen(source)
 
-        try:    
+        try:
             return r.recognize_google(audio)	
         except Exception as e:
             return ""
@@ -35,44 +41,34 @@ def ObtenerMensajeVoz():
 
 def ObtenerMaquina( texto ):
     texto = texto.lower()
-    nombres = ["Carla","Matilda","Maria"]   
-           
-    for nombre in nombres:
-       if( nombre.lower() in texto):
-        return ["nombre", nombre]
+
+    for maquina in maquinas:
+       if( maquina.nombre.lower() in texto):
+            return maquina
     
     return ""
 
-
-def main():
-
-    CargarMaquinas()
-    MostrarMaquinas()
-    os.system( "clear" )
-    MostrarMaquinas()
-     
+def EnviarMensaje():
     while(True):
-     print("A quien le enviaras el mensaje?")
-     texto = ObtenerMensajeVoz()
-     if (texto != ""):
-         destinatario = ObtenerMaquina( texto )
-         if(destinatario != ""):
-          print("Se enviara a la maquina de:\t" + destinatario + "\n")
-	  
-         while(True):
-             print("Cual es tu mensaje?")
-             mensaje = ObtenerMensajeVoz()
-             if (mensaje != ""):
-               print("Tu mensaje es: \t" + mensaje + "\n")
-               break
-         else:
-            input( "Intentalo de nuevo. Pulsa enter para continuar ..." )
-            os.system( "clear" )
-            MostrarMaquinas()
-
-    else:
-        input( "Intentalo de nuevo. Pulsa enter para continuar ..." )
         os.system( "clear" )
-        print("Repite tu mensaje")
-    
+        
+        texto = ObtenerMensajeVoz("A quien le enviaras el mensaje?")
+        if (texto != ""):
+            destinatario = ObtenerMaquina( texto.lower() )         
+            if(destinatario != ""):
+                while(True):
+                    os.system( "clear" )
+                    print("Se enviara un mensaje a: \t" + destinatario.nombre + "\n")
+                    mensaje = ObtenerMensajeVoz("Cual es tu mensaje?")
+                    if (mensaje != ""):
+                        print("Tu mensaje es: \t" + mensaje + "\n")
+                        break
+                    else:
+                        input( "Intentalo de nuevo. Pulsa enter para continuar ..." )
+                break
+        input( "El usuario no se ha encontrado, intentalo de nuevo. Pulsa enter para continuar ..." )
+def main():
+    CargarMaquinas()
+    EnviarMensaje()
+
 main()

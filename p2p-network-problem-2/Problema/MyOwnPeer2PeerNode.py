@@ -1,4 +1,4 @@
-from p2pnetwork.node import Node
+from node import Node
 
 class MyOwnPeer2PeerNode (Node):
 

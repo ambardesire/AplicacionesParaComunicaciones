@@ -70,10 +70,10 @@ def EnviarMensaje():
 
 def main():
 
-    carla = MyOwnPeer2PeerNode("127.0.0.1", 8001)
+    usuario = MyOwnPeer2PeerNode("127.0.0.1", 8001)
     time.sleep(1)
 
-    carla.start()
+    usuario.start()
     print("Conectando ...\n")
     time.sleep(5)
     while(True):
@@ -96,6 +96,6 @@ def main():
             continue
         else:
             break
-    carla.stop()
+    usuario.stop()
 
 main()

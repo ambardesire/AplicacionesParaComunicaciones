@@ -69,10 +69,10 @@ def EnviarMensaje():
     return destinatario.nombre, mensaje
 
 def main():
-    maria = MyOwnPeer2PeerNode("127.0.0.1", 8003)
+    usuario = MyOwnPeer2PeerNode("127.0.0.1", 8003)
     time.sleep(1)
 
-    maria.start()
+    usuario.start()
     print("Conectando ...\n")
     time.sleep(5)
 
@@ -97,6 +97,6 @@ def main():
         else:
             break
     input("Pulsa enter para salir")
-    maria.stop()
+    usuario.stop()
 
 main()

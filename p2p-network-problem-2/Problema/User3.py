@@ -68,10 +68,10 @@ def EnviarMensaje():
     return destinatario.nombre, mensaje
 
 def main():
-    lalo = MyOwnPeer2PeerNode("127.0.0.1", 8002)
+    maria = MyOwnPeer2PeerNode("127.0.0.1", 8003)
     time.sleep(1)
 
-    lalo.start()
+    maria.start()
     print("Conectando ...\n")
     time.sleep(5)
 
@@ -82,28 +82,28 @@ def main():
         
         if("Carla" in destino):
             print("Conectando con Carla\n")
-            lalo.connect_with_node('127.0.0.1', 8001)
+            maria.connect_with_node('127.0.0.1', 8001)
             time.sleep(2)
             print("Enviando mensaje a " + destino + "\n")
-            lalo.send_to_nodes( "Lalo: " + mns )
+            maria.send_to_nodes( "Maria: " + mns )
             time.sleep(5) #Menu de ciclos de la aplicacion
 
             opc = input("Quieres enviar otro mensaje? S/n\n")
-        if("Maria" in destino):
-            print("Conectando con Maria\n")
-            lalo.connect_with_node('127.0.0.1', 8003)
+        if("Lalo" in destino):
+            print("Conectando con Lalo\n")
+            maria.connect_with_node('127.0.0.1', 8002)
             time.sleep(2)
             print("Enviando mensaje a " + destino + "\n")
-            lalo.send_to_nodes("Lalo: " + mns )
+            maria.send_to_nodes( "Maria: " + mns )
             time.sleep(5) #Menu de ciclos de la aplicacion
             
             opc = input("Quieres enviar otro mensaje? S/n\n")
-            
+
             if(opc.lower() == "n"):
                 break
         else:
             input("Presiona enter para intentarlo de nuevo\n\n")
-    
-    lalo.stop()
+
+    maria.stop()
 
 main()

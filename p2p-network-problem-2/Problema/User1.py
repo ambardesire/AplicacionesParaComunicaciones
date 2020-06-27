@@ -12,18 +12,14 @@ PUERTO = 2
 
 def CargarMaquinas():
     maquinas.append( Maquina("Carla", "127.0.0.1", "8001") )
-    maquinas.append( Maquina("Pepe", "127.0.0.2", "8002") )
-    maquinas.append( Maquina("Maria", "127.0.0.3", "8003") )
+    maquinas.append( Maquina("Lalo", "127.0.0.1", "8002") )
+    maquinas.append( Maquina("Maria", "127.0.0.1", "8003") )
     
 def MostrarMaquinas():
     for maquina in maquinas:
         maquina.DescripcionMaquina()
 
-def ObtenerMensajeVoz( mensaje, ban = True ):
-    if(ban):
-        return "Pepe"
-    else:
-        return "Hola soy Carla, este es mi mensaje "
+def ObtenerMensajeVoz( mensaje ):
     r = sr.Recognizer()
     with sr.Microphone() as source:
         r.adjust_for_ambient_noise(source)
@@ -61,14 +57,14 @@ def EnviarMensaje():
                 while(True):
                     os.system( "clear" )
                     print("Se enviara un mensaje a: \t" + destinatario.nombre + "\n")
-                    mensaje = ObtenerMensajeVoz("Cual es tu mensaje?",False)
+                    mensaje = ObtenerMensajeVoz("Cual es tu mensaje?")
                     if (mensaje != ""):
                         print("Tu mensaje es: \t" + mensaje + "\n")
                         break
                     else:
                         input( "Intentalo de nuevo. Pulsa enter para continuar ..." )
                 break
-        input( "El usuario no se ha encontrado, intentalo de nuevo. Pulsa enter para continuar ..." )
+        input( "El usuario no se ha encontrado, intentalo de nuevo. Pulsa enter para continuar ...\n" )
     return destinatario.nombre, mensaje
 
 def main():
@@ -77,27 +73,38 @@ def main():
     time.sleep(1)
 
     carla.start()
-    print("Conectando ...")
+    print("Conectando ...\n")
     time.sleep(5)
 
-    print("Conectando con Pepe")
-    carla.connect_with_node('127.0.0.1', 8002)
-    time.sleep(2)
     while(True):
         os.system("clear")
         CargarMaquinas()
         destino, mns = EnviarMensaje()
         
-        if( "Pepe" in destino):
-            print("Enviando mensaje a " + destino)
-            carla.send_to_nodes( mns )
+        if("Maria" in destino):
+            print("Conectando con Maria\n")
+            carla.connect_with_node('127.0.0.1', 8003)
+            time.sleep(2)
+            print("Enviando mensaje a " + destino + "\n")
+            carla.send_to_nodes( "Carla: " + mns )
+            time.sleep(5) #Menu de ciclos de la aplicacion
+
+            opc = input("Quieres enviar otro mensaje? S/n\n")
+        if("Lalo" in destino):
+            print("Conectando con Lalo\n")
+            carla.connect_with_node('127.0.0.1', 8002)
+            time.sleep(2)
+            print("Enviando mensaje a " + destino + "\n")
+            carla.send_to_nodes( "Carla: " + mns )
             time.sleep(5) #Menu de ciclos de la aplicacion
             
-            opc = input("Quieres enviar otro mensaje? S/n")
+            opc = input("Quieres enviar otro mensaje? S/n\n")
+
             if(opc.lower() == "n"):
                 break
         else:
-            input("Presiona enter para intentarlo de nuevo\n")
+            input("Presiona enter para intentarlo de nuevo\n\n")
+
     carla.stop()
 
 main()

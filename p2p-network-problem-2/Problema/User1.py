@@ -14,6 +14,7 @@ def CargarMaquinas():
     maquinas.append( Maquina("Carla", "127.0.0.1", "8001") )
     maquinas.append( Maquina("Lalo", "127.0.0.1", "8002") )
     maquinas.append( Maquina("Maria", "127.0.0.1", "8003") )
+    maquinas.append( Maquina("Ambar", "127.0.0.1", "8004") )
     
 def MostrarMaquinas():
     for maquina in maquinas:
@@ -75,36 +76,26 @@ def main():
     carla.start()
     print("Conectando ...\n")
     time.sleep(5)
-
-    # while(True):
-    #     os.system("clear")
-    #     CargarMaquinas()
-    #     destino, mns = EnviarMensaje()
+    while(True):
+        os.system("clear")
+        CargarMaquinas()
+        destino, mns = EnviarMensaje()
+        for maquina in maquinas:
+            if(destino.lower() == maquina.nombre.lower()):
+                print("Conectando con " + maquina.nombre +"\n")
+                
+                usuario.connect_with_node(maquina.caracteristicas[0], int( maquina.caracteristicas[1]) )
+                time.sleep(2)
+                print("Enviando mensaje a " + maquina.nombre + "\n")
+                usuario.send_to_nodes( "Carla: " + mns )
+                time.sleep(5) #Menu de ciclos de la aplicacion
+                break
         
-    #     if("Maria" in destino):
-    #         print("Conectando con Maria\n")
-    #         carla.connect_with_node('127.0.0.1', 8003)
-    #         time.sleep(2)
-    #         print("Enviando mensaje a " + destino + "\n")
-    #         carla.send_to_nodes( "Carla: " + mns )
-    #         time.sleep(5) #Menu de ciclos de la aplicacion
-
-    #         opc = input("Quieres enviar otro mensaje? S/n\n")
-    #     if("Lalo" in destino):
-    #         print("Conectando con Lalo\n")
-    #         carla.connect_with_node('127.0.0.1', 8002)
-    #         time.sleep(2)
-    #         print("Enviando mensaje a " + destino + "\n")
-    #         carla.send_to_nodes( "Carla: " + mns )
-    #         time.sleep(5) #Menu de ciclos de la aplicacion
-            
-    #         opc = input("Quieres enviar otro mensaje? S/n\n")
-
-    #         if(opc.lower() == "n"):
-    #             break
-    #     else:
-    #         input("Presiona enter para intentarlo de nuevo\n\n")
-    input("Pulsa enter para salir")
+        opc = input("Quieres enviar otro mensaje? S/n\n")
+        if(opc.lower() == "s"):
+            continue
+        else:
+            break
     carla.stop()
 
 main()

@@ -14,14 +14,13 @@ def CargarMaquinas():
     maquinas.append( Maquina("Carla", "127.0.0.1", "8001") )
     maquinas.append( Maquina("Lalo", "127.0.0.1", "8002") )
     maquinas.append( Maquina("Maria", "127.0.0.1", "8003") )
-    
+    maquinas.append( Maquina("Ambar", "127.0.0.1", "8004") )    
+
 def MostrarMaquinas():
     for maquina in maquinas:
         maquina.DescripcionMaquina()
 
 def ObtenerMensajeVoz( mensaje ):
-    text = input("Aqui va la voz ... ")
-    return text
     r = sr.Recognizer()
     with sr.Microphone() as source:
         r.adjust_for_ambient_noise(source)
@@ -37,7 +36,6 @@ def ObtenerMensajeVoz( mensaje ):
             return r.recognize_google(audio)	
         except Exception as e:
             return ""
-
 
 def ObtenerMaquina( texto ):
     texto = texto.lower()
@@ -98,29 +96,6 @@ def main():
             continue
         else:
             break
-        # if("Maria" in destino):
-        #     print("Conectando con Maria\n")
-        #     carla.connect_with_node('127.0.0.1', 8003)
-        #     time.sleep(2)
-        #     print("Enviando mensaje a " + destino + "\n")
-        #     carla.send_to_nodes( "Carla: " + mns )
-        #     time.sleep(5) #Menu de ciclos de la aplicacion
-
-        #     opc = input("Quieres enviar otro mensaje? S/n\n")
-        # if("Lalo" in destino):
-        #     print("Conectando con Lalo\n")
-        #     carla.connect_with_node('127.0.0.1', 8002)
-        #     time.sleep(2)
-        #     print("Enviando mensaje a " + destino + "\n")
-        #     carla.send_to_nodes( "Carla: " + mns )
-        #     time.sleep(5) #Menu de ciclos de la aplicacion
-            
-        #     opc = input("Quieres enviar otro mensaje? S/n\n")
-
-        #     if(opc.lower() == "n"):
-        #         break
-        # else:
-#            input("Presiona enter para intentarlo de nuevo\n\n")
 
     usuario.stop()
 

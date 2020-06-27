@@ -75,35 +75,35 @@ def main():
     print("Conectando ...\n")
     time.sleep(5)
 
-    while(True):
-        os.system("clear")
-        CargarMaquinas()
-        destino, mns = EnviarMensaje()
+    # while(True):
+    #     os.system("clear")
+    #     CargarMaquinas()
+    #     destino, mns = EnviarMensaje()
         
-        if("Carla" in destino):
-            print("Conectando con Carla\n")
-            maria.connect_with_node('127.0.0.1', 8001)
-            time.sleep(2)
-            print("Enviando mensaje a " + destino + "\n")
-            maria.send_to_nodes( "Maria: " + mns )
-            time.sleep(5) #Menu de ciclos de la aplicacion
+    #     if("Carla" in destino):
+    #         print("Conectando con Carla\n")
+    #         maria.connect_with_node('127.0.0.1', 8001)
+    #         time.sleep(2)
+    #         print("Enviando mensaje a " + destino + "\n")
+    #         maria.send_to_nodes( "Maria: " + mns )
+    #         time.sleep(5) #Menu de ciclos de la aplicacion
 
-            opc = input("Quieres enviar otro mensaje? S/n\n")
-        if("Lalo" in destino):
-            print("Conectando con Lalo\n")
-            maria.connect_with_node('127.0.0.1', 8002)
-            time.sleep(2)
-            print("Enviando mensaje a " + destino + "\n")
-            maria.send_to_nodes( "Maria: " + mns )
-            time.sleep(5) #Menu de ciclos de la aplicacion
+    #         opc = input("Quieres enviar otro mensaje? S/n\n")
+    #     if("Lalo" in destino):
+    #         print("Conectando con Lalo\n")
+    #         maria.connect_with_node('127.0.0.1', 8002)
+    #         time.sleep(2)
+    #         print("Enviando mensaje a " + destino + "\n")
+    #         maria.send_to_nodes( "Maria: " + mns )
+    #         time.sleep(5) #Menu de ciclos de la aplicacion
             
-            opc = input("Quieres enviar otro mensaje? S/n\n")
+    #         opc = input("Quieres enviar otro mensaje? S/n\n")
 
-            if(opc.lower() == "n"):
-                break
-        else:
-            input("Presiona enter para intentarlo de nuevo\n\n")
-
+    #         if(opc.lower() == "n"):
+    #             break
+    #     else:
+    #         input("Presiona enter para intentarlo de nuevo\n\n")
+    input("Pulsa enter para salir")
     maria.stop()
 
 main()

@@ -20,6 +20,8 @@ def MostrarMaquinas():
         maquina.DescripcionMaquina()
 
 def ObtenerMensajeVoz( mensaje ):
+    text = input("Aqui va la voz ... ")
+    return text
     r = sr.Recognizer()
     with sr.Microphone() as source:
         r.adjust_for_ambient_noise(source)
@@ -28,7 +30,7 @@ def ObtenerMensajeVoz( mensaje ):
         MostrarMaquinas()
         
         print( mensaje )
-        print( "Escuchando\n")
+        print( "Escuchando ")
         audio = r.listen(source)
 
         try:
@@ -68,42 +70,58 @@ def EnviarMensaje():
     return destinatario.nombre, mensaje
 
 def main():
-    lalo = MyOwnPeer2PeerNode("127.0.0.1", 8002)
+
+    usuario = MyOwnPeer2PeerNode("127.0.0.1", 8004)
     time.sleep(1)
 
-    lalo.start()
+    usuario.start()
     print("Conectando ...\n")
     time.sleep(5)
 
-    # while(True):
-    #     os.system("clear")
-    #     CargarMaquinas()
-    #     destino, mns = EnviarMensaje()
+    while(True):
+        os.system("clear")
+        CargarMaquinas()
+        destino, mns = EnviarMensaje()
+        for maquina in maquinas:
+            if(destino.lower() == maquina.nombre.lower()):
+                print("Conectando con " + maquina.nombre +"\n")
+                
+                usuario.connect_with_node(maquina.caracteristicas[0], int( maquina.caracteristicas[1]) )
+                time.sleep(2)
+                print("Enviando mensaje a " + maquina.nombre + "\n")
+                usuario.send_to_nodes( "Ambar: " + mns )
+                time.sleep(5) #Menu de ciclos de la aplicacion
+                break
         
-    #     if("Carla" in destino):
-    #         print("Conectando con Carla\n")
-    #         lalo.connect_with_node('127.0.0.1', 8001)
-    #         time.sleep(2)
-    #         print("Enviando mensaje a " + destino + "\n")
-    #         lalo.send_to_nodes( "Lalo: " + mns )
-    #         time.sleep(5) #Menu de ciclos de la aplicacion
+        opc = input("Quieres enviar otro mensaje? S/n\n")
+        if(opc.lower() == "s"):
+            continue
+        else:
+            break
+        # if("Maria" in destino):
+        #     print("Conectando con Maria\n")
+        #     carla.connect_with_node('127.0.0.1', 8003)
+        #     time.sleep(2)
+        #     print("Enviando mensaje a " + destino + "\n")
+        #     carla.send_to_nodes( "Carla: " + mns )
+        #     time.sleep(5) #Menu de ciclos de la aplicacion
 
-    #         opc = input("Quieres enviar otro mensaje? S/n\n")
-    #     if("Maria" in destino):
-    #         print("Conectando con Maria\n")
-    #         lalo.connect_with_node('127.0.0.1', 8003)
-    #         time.sleep(2)
-    #         print("Enviando mensaje a " + destino + "\n")
-    #         lalo.send_to_nodes("Lalo: " + mns )
-    #         time.sleep(5) #Menu de ciclos de la aplicacion
+        #     opc = input("Quieres enviar otro mensaje? S/n\n")
+        # if("Lalo" in destino):
+        #     print("Conectando con Lalo\n")
+        #     carla.connect_with_node('127.0.0.1', 8002)
+        #     time.sleep(2)
+        #     print("Enviando mensaje a " + destino + "\n")
+        #     carla.send_to_nodes( "Carla: " + mns )
+        #     time.sleep(5) #Menu de ciclos de la aplicacion
             
-    #         opc = input("Quieres enviar otro mensaje? S/n\n")
-            
-    #         if(opc.lower() == "n"):
-    #             break
-    #     else:
-    #         input("Presiona enter para intentarlo de nuevo\n\n")
-    input("Pulsa enter para salir")
-    lalo.stop()
+        #     opc = input("Quieres enviar otro mensaje? S/n\n")
+
+        #     if(opc.lower() == "n"):
+        #         break
+        # else:
+#            input("Presiona enter para intentarlo de nuevo\n\n")
+
+    usuario.stop()
 
 main()

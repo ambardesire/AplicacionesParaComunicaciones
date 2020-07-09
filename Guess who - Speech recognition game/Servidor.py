@@ -9,6 +9,8 @@ import sys
 import threading
 import pickle
 from Personaje import *
+from os import path
+import speech_recognition as sr
 
 BUFFER_SIZE = 1024
 JUEGO_TERMINADO = True
@@ -141,6 +143,60 @@ def EnviarTirosAClientes(JUEGO_TERMINADO = False, identificador = ""):
             print( "Cerrando conexión " + str(i) )
             conn.close()   
 
+def ObtenerMensajeVoz():
+    sound = "entrada.wav"
+    r = sr.Recognizer()
+
+    with sr.AudioFile(sound) as source:
+        r.adjust_for_ambient_noise(source)
+
+        print("Convirtiendo audio a texto")
+
+        audio = r.listen(source)
+
+        try:
+             return r.recognize_google(audio, language='es-mx')			
+	
+        except Exception as e:
+             return ""
+
+def ObtenerCaracteristica( texto ):
+    texto = texto.lower()
+    accesorios = ["nada", "lentes", "sombrero", "corbata"] # "tu personaje tiene <accesorio>"
+    nombres = ["Carla","Matilda","Maria","Samuel","Eduardo","Bob","Patricio","Jorge","Jessica", "Camila", "Paulina"] #"tu personaje es <genero_nombre>"
+    generos = ["mujer", "hombre"]
+
+    caracteristicas = [" ojo", " cabello", " piel", " genero"]
+    
+    i = 0
+    for caracteristica in caracteristicas:
+        if( caracteristica in texto):
+            t = texto.split( caracteristica )
+            color = t[1].split(" ")
+            if( i == 0):
+                caracteristica = caracteristica + "s"
+            response = [caracteristica.replace(" ",""), color[1]]
+            return response
+
+        i = i + 1
+    
+    if( "tiene" in texto):
+        t = texto.split("tiene")
+        acc = t[1]
+        for accesorio in accesorios:           
+            if( accesorio in acc):
+             return ["accesorio", accesorio]             
+        return ["accesorio", "nada"]
+    else:
+        for genero in generos:
+            if( genero in texto):
+                return ["genero", genero]
+        
+        for nombre in nombres:
+            if( nombre.lower() in texto):
+                return ["nombre", nombre]
+    return ""
+
 def CompararCaracteristica(caracteristica, valor):
     if ( caracteristica == "nombre" ):
         if(personaje.nombre.lower() == valor):
@@ -180,15 +236,38 @@ def RecibirPregunta(conn, addr, condicionEsperarJugadores, condicionTurnoActivo,
                 with condicionEsperarJugadores:
                     EnviarTirosAClientes(JUEGO_TERMINADO, identificador)
                     print( "Esperando tiro del cliente: ", addr )
-                    tiroCliente = pickle.loads( conn.recv(BUFFER_SIZE) )
-                    comparacion = CompararCaracteristica( tiroCliente[0].lower(), tiroCliente[1].lower() )
-                    if( comparacion ):
-                        conn.sendall( str("Correcto, el personaje tiene : " + tiroCliente[0] + " " + tiroCliente[1] ).encode() )
-                        tiroCliente.append("Si")
+                    #tiroCliente = pickle.loads( conn.recv(BUFFER_SIZE) )
+                    f=open("audio.wav", "wb")     # Se crea un archivo de audio donde se guardará el archivo
+                    # Si hay datos a recibir, seguir escribiendo
+                    dato=conn.recv(8).decode()
+                    dato = dato.split('-')
+                    tamReciv=int(dato[0])
+                    datoAud=bytearray()
+                    #datoAud=conn.recv(tamReciv)
+                    while len(datoAud) < tamReciv:
+                        packet = conn.recv(tamReciv-len(datoAud))
+                        if not packet:
+                            break
+                        datoAud.extend(packet)
+                    f.write(datoAud)
+                    AUDIO_FILE = path.join(path.dirname(path.realpath(__file__)), "respuesta.wav")
+                    print("archivo generado")                    
+
+                    texto = ObtenerMensajeVoz()
+
+                    tiroCliente = ObtenerCaracteristica( texto )
+                    if(tiroCliente != ""):
+                        comparacion = CompararCaracteristica( tiroCliente[0].lower(), tiroCliente[1].lower() )
+
+                        if( comparacion ):
+                            conn.sendall( str("Correcto, el personaje tiene : " + tiroCliente[0] + " " + tiroCliente[1] ).encode() )
+                            tiroCliente.append("Si")
+                        else:
+                            conn.sendall( str("El personaje no tiene : " + tiroCliente[0] + " " + tiroCliente[1] ).encode() )
+                            tiroCliente.append("No")
                     else:
-                        conn.sendall( str("El personaje no tiene : " + tiroCliente[0] + " " + tiroCliente[1] ).encode() )
+                        conn.sendall( str("Algo salio mal, intentalo de nuevo." ).encode())
                         tiroCliente.append("No")
-                    
                     tiros_anteriores.append(tiroCliente)
                     condicionEsperarJugadores.notify() #Notifica al gestor de tiros que el cliente ha tirado
             else:

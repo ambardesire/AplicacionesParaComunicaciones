@@ -9,11 +9,17 @@ import datetime
 import threading
 import sys
 import speech_recognition as sr
+import pyaudio
+import wave
 from Personaje import *
+from os import path
+from array import array
+from os import stat
 
 personajes = []
 BUFFER_SIZE = 1024
 HOST, PORT = sys.argv[1:3]
+archivo="entrada.wav"
 
 def CargarPersonajes():
     personajes.append( Personaje("Carla", "Negro", "Cafes", "Blanca", "Nada", "Mujer") )
@@ -50,7 +56,7 @@ def ObtenerMensajeVoz():
 def ObtenerCaracteristica( texto ):
     texto = texto.lower()
     accesorios = ["nada", "lentes", "sombrero", "corbata"] # "tu personaje tiene <accesorio>"
-    nombres = ["Carla","Matilda","Maria","Samuel","Jon","Bob","Patricio","Jorge","Jessica", "Camila", "Paulina"] #"tu personaje es <genero_nombre>"
+    nombres = ["Carla","Matilda","Maria","Samuel","Eduardo","Bob","Patricio","Jorge","Jessica", "Camila", "Paulina"] #"tu personaje es <genero_nombre>"
     generos = ["mujer", "hombre"]
 
     caracteristicas = [" ojo", " cabello", " piel", " genero"]
@@ -90,6 +96,41 @@ def MostrarTiros(tiros):
         for tiro in tiros:
             print( "\t\t" + tiro[0] + " " + tiro[1] + ": " + tiro[2] )
 
+def ObtenerAudio():
+    FORMAT=pyaudio.paInt16
+    CHANNELS=2
+    RATE=44100
+    CHUNK=1024
+    duracion=7 #duracion de la grabacion 7 segundos
+ 
+    #Iniciamos pyaudio
+    audio=pyaudio.PyAudio()
+
+    stream=audio.open(format=FORMAT, channels=CHANNELS,
+                       rate=RATE, input=True,
+                       frames_per_buffer=CHUNK)
+    #Inicia grabación
+    print("Escuchando...")
+    frames=[]
+
+    for i in range(0, int(RATE/CHUNK*duracion)):
+        data=stream.read(CHUNK)
+        frames.append(data)
+    print("Terminando de escuchar")
+  
+    #Deteniendo grabación
+    stream.stop_stream()
+    stream.close()
+    audio.terminate()
+  
+    #Creamos el archivo de audio
+    waveFile = wave.open(archivo, 'wb')
+    waveFile.setnchannels(CHANNELS)
+    waveFile.setsampwidth(audio.get_sample_size(FORMAT))
+    waveFile.setframerate(RATE)
+    waveFile.writeframes(b''.join(frames))
+    waveFile.close()
+
 if len(sys.argv) != 3:
     print( "usage:", sys.argv[0], "<host> <port>" )
     sys.exit(1)
@@ -120,17 +161,27 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as TCPClientSocket:
         if( dato[2] != ""):
             tiros_anteriores = dato[2]
         
-        if( dato[0] ):            
-            while(True):
-                texto = ObtenerMensajeVoz()
-                if (texto != ""):
-                    tiroCliente = ObtenerCaracteristica( texto )
-                    if( tiroCliente != ""):
-                        TCPClientSocket.sendall( pickle.dumps(tiroCliente) )
-                        resultado = TCPClientSocket.recv(BUFFER_SIZE)
-                        break
-                print(texto)
-                input( "Intentalo de nuevo. Pulsa enter para continuar ..." )
+        if( dato[0] ):
+            #while(True):
+            res = ObtenerAudio()
+            arr = array('B')
+            result = stat("entrada.wav")
+            f = open("entrada.wav", 'rb')
+            arr.fromfile(f, result.st_size)
+            au = os.path.getsize('entrada.wav')
+            tamEnvi=str(au)
+            print("Enviando...")
+            TCPClientSocket.sendall("{}-{}".format(tamEnvi, "a").encode())
+            TCPClientSocket.sendall(arr)  
+            resultado = TCPClientSocket.recv(BUFFER_SIZE)
+                # if (texto != ""):
+                #     tiroCliente = ObtenerCaracteristica( texto )
+                #     if( tiroCliente != ""):
+                #         TCPClientSocket.sendall( pickle.dumps(tiroCliente) )
+                #         resultado = TCPClientSocket.recv(BUFFER_SIZE)
+                #         break
+                # print(texto)
+                # input( "Intentalo de nuevo. Pulsa enter para continuar ..." )
         else:
             os.system( "clear" )
             MostrarPersonajes()
